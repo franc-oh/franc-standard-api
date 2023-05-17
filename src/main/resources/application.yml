@@ -1,0 +1,38 @@
+server:
+  port: 8090
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  output:
+    ansi:
+      enabled: always
+
+  datasource:
+    hikari:
+      auto-commit: false
+      connection-test-query: SELECT 1
+      minimum-idle: 10
+      maximum-pool-size: 50
+      transaction-isolation: TRANSACTION_READ_UNCOMMITTED
+      pool-name: pool-tester
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+
+#mybatis:
+#  type-aliases-package: com.franc.standard.vo
+#  mapper-locations: classpath:/mapper/**/*.xml
+#  configuration:
+#    map-underscore-to-camel-case: true
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    property:
+      prefix: ENC(
+      suffix: )
+
+
+

@@ -1,0 +1,65 @@
+buildscript {
+    ext {
+        springBootVersion = '2.7.9'
+        lombokVersion = '1.18.26'
+        mybatisVersion = '2.2.2'
+        junitVersion = '5.5.2'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'war'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group 'com.franc.standard'
+version '1.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:$mybatisVersion"
+    implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.3"
+    implementation 'org.modelmapper:modelmapper:2.3.8'
+    testImplementation 'org.projectlombok:lombok:1.18.22'
+
+    compileOnly 'org.springframework.boot:spring-boot-devtools'
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+
+    runtimeOnly 'com.h2database:h2'
+
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation"org.junit.jupiter:junit-jupiter:$junitVersion"
+
+    testCompileOnly "org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion"
+
+}
+
+test {
+    useJUnitPlatform()
+}
