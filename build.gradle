@@ -54,9 +54,8 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation"org.junit.jupiter:junit-jupiter:$junitVersion"
-
-    testCompileOnly "org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testImplementation "org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion"
 
 }
 

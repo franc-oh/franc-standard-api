@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.franc.standard.repository.AccountMapper">
+
+    <select id="findById" parameterType="java.util.Map" resultType="AccountVO">
+        /** AccountMapper.findById */
+        SELECT *
+        FROM ACCOUNT
+        WHERE MEMBER_NO = #{memberNo}
+        AND ACCOUNT_NO = #{accountNo}
+        AND BANK_CD = #{bankCd}
+    </select>
+
+    <insert id="save" parameterType="AccountVO">
+        /** AccountMapper.save */
+        INSERT INTO ACCOUNT(
+            MEMBER_NO,
+            ACCOUNT_NO,
+            BANK_CD,
+            PIN,
+            CREATE_DATE
+        ) VALUES (
+            #{memberNo},
+            #{accountNo},
+            #{bankCd},
+            #{pin},
+            NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            STATUS = #{status}
+    </insert>
+
+</mapper>

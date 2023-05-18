@@ -21,11 +21,11 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
 
-#mybatis:
-#  type-aliases-package: com.franc.standard.vo
-#  mapper-locations: classpath:/mapper/**/*.xml
-#  configuration:
-#    map-underscore-to-camel-case: true
+mybatis:
+  type-aliases-package: com.franc.standard.vo
+  mapper-locations: classpath:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
 
 jasypt:
   encryptor:
