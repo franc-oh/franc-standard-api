@@ -88,6 +88,9 @@ public class AccountServiceTests {
                 .status(AccountStatus.WITHDRAWAL.code())
                 .build();
 
+        when(accountMapper.findById(anyMap()))
+                .thenReturn(mockAccountVO);
+
         doNothing().when(accountMapper).save(any(AccountVO.class));
 
         // #2. When
@@ -97,6 +100,86 @@ public class AccountServiceTests {
         verify(accountMapper, times(1)).findById(anyMap());
         verify(accountMapper, times(1)).save(any(AccountVO.class));
     }
+
+    // 실패 - 계좌가 없는 경우
+    // 실패 - 정상상태가 아닌 경우
+    // 실패 - 핀번호가 틀린경우
+    // 성공 - 해지
+
+    @Test
+    @DisplayName("계좌해지실패 - 계좌가 없는 경우")
+    public void withdrawalAccount_fail_notExist() throws Exception {
+        // #1. Given
+        when(accountMapper.findById(anyMap()))
+                .thenReturn(null);
+
+        // #2. When
+        BizException exception
+                = assertThrows(BizException.class, () -> accountService.withdrawalAccount(getAccountVO()));
+
+        // #3. Then
+        assertThat(exception.getClass()).isEqualTo(BizException.class);
+        assertThat(exception.getResult()).isEqualTo(ExceptionResult.NOT_FOUND_ACCOUNT);
+        verify(accountMapper, times(1)).findById(anyMap());
+
+    }
+
+    @Test
+    @DisplayName("계좌해지실패 - 정상상태가 아닌 경우")
+    public void withdrawalAccount_fail_status() throws Exception {
+        // #1. Given
+        when(accountMapper.findById(anyMap()))
+                .thenReturn(AccountVO.builder()
+                        .status(AccountStatus.STOP.code())
+                        .build());
+
+        // #2. When
+        BizException exception
+                = assertThrows(BizException.class, () -> accountService.withdrawalAccount(getAccountVO()));
+
+        // #3. Then
+        assertThat(exception.getClass()).isEqualTo(BizException.class);
+        assertThat(exception.getResult()).isEqualTo(ExceptionResult.NOT_ACTIVE_ACCOUNT);
+        verify(accountMapper, times(1)).findById(anyMap());
+    }
+
+    @Test
+    @DisplayName("계좌해지실패 - 핀번호가 틀린경우")
+    public void withdrawalAccount_fail_pin() throws Exception {
+        // #1. Given
+        when(accountMapper.findById(anyMap()))
+                .thenReturn(AccountVO.builder()
+                        .status(AccountStatus.USE.code())
+                        .pin("454444")
+                        .build());
+
+        // #2. When
+        BizException exception
+                = assertThrows(BizException.class, () -> accountService.withdrawalAccount(getAccountVO()));
+
+        // #3. Then
+        assertThat(exception.getClass()).isEqualTo(BizException.class);
+        assertThat(exception.getResult()).isEqualTo(ExceptionResult.WRONG_PIN_NUMBER);
+        verify(accountMapper, times(1)).findById(anyMap());
+    }
+
+    @Test
+    @DisplayName("계좌해지성공")
+    public void withdrawalAccount() throws Exception {
+        // #1. Given
+        when(accountMapper.findById(anyMap()))
+                .thenReturn(getAccountVO());
+
+        doNothing().when(accountMapper).save(any(AccountVO.class));
+
+        // #2. When
+        accountService.withdrawalAccount(getAccountVO());
+
+        // #3. Then
+        verify(accountMapper, times(1)).findById(anyMap());
+        verify(accountMapper, times(1)).save(any(AccountVO.class));
+    }
+
 
     public AccountVO getAccountVO() throws Exception {
         return AccountVO.builder()

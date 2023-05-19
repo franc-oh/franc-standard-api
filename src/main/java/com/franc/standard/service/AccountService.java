@@ -53,4 +53,34 @@ public class AccountService {
         logger.info("계좌등록 성공 : " + accountVO.getAccountNo());
     }
 
+
+    /**
+     * 계좌 해지
+     * @param paramVO
+     * @throws Exception
+     */
+    public void withdrawalAccount(AccountVO paramVO) throws Exception {
+
+        // #1. 계좌정보 가져오기
+        Map<String, Object> checkAccountParamMap = objectMapper.convertValue(paramVO, Map.class);
+        AccountVO accountVO = accountMapper.findById(checkAccountParamMap);
+        
+        // #2. 유효성 체크
+        if(accountVO == null) {
+            throw new BizException(ExceptionResult.NOT_FOUND_ACCOUNT);
+        }
+        if(AccountStatus.USE.code() != accountVO.getStatus()) {
+            throw new BizException(ExceptionResult.NOT_ACTIVE_ACCOUNT);
+        }
+        if(!paramVO.getPin().equals(accountVO.getPin())) {
+            throw new BizException(ExceptionResult.WRONG_PIN_NUMBER);
+        }
+        
+        // #3. 해지
+        accountVO.withdrawal();
+        accountMapper.save(accountVO);
+        logger.info("계좌해지 성공 : " + accountVO.getAccountNo());
+        
+    }
+
 }

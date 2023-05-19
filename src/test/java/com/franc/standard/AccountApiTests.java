@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.franc.standard.code.BaseCode;
 import com.franc.standard.controller.AccountController;
 import com.franc.standard.dto.AccountSaveDTO;
+import com.franc.standard.dto.AccountWithdrawalDTO;
 import com.franc.standard.exception.ControllerExceptionHandler;
 import com.franc.standard.exception.ExceptionResult;
+import com.franc.standard.repository.AccountMapper;
+import com.franc.standard.vo.AccountVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +43,9 @@ public class AccountApiTests {
     private AccountController accountController;
 
     @Autowired
+    private AccountMapper accountMapper;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
@@ -55,7 +61,7 @@ public class AccountApiTests {
     }
 
 
-    private static final String URL = "/api/standard/account";
+    private static final String URL = "/api/standard/accounts";
     private static final Long MEMBER_NO = 1L;
     private static final String ACCOUNT_NO = "1234111122290";
     private static final String BANK_CD = "102";
@@ -132,7 +138,7 @@ public class AccountApiTests {
     @Test
     @DisplayName("계좌등록성공")
     @Transactional
-    public void save_exception_business() throws Exception {
+    public void save() throws Exception {
         // #1. Given
         AccountSaveDTO.Request request = AccountSaveDTO.Request.builder()
                 .memberNo(MEMBER_NO)
@@ -154,8 +160,118 @@ public class AccountApiTests {
     }
 
 
+    @Test
+    @DisplayName("계좌등록성공_재등록")
+    @Transactional
+    public void save_re() throws Exception {
+        // #1. Given
+        AccountSaveDTO.Request request = AccountSaveDTO.Request.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo(ACCOUNT_NO)
+                .bankCd(BANK_CD)
+                .pin(PIN)
+                .build();
+
+        AccountVO saveAccountVO = objectMapper.convertValue(request, AccountVO.class);
+        accountMapper.save(saveAccountVO);
+
+        saveAccountVO.withdrawal();
+        accountMapper.save(saveAccountVO);
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                saveRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isCreated())
+                .andExpect(jsonPath("resultCode").value(BaseCode.RESPONSE_CODE_SUCCESS))
+                .andExpect(jsonPath("resultMessage").value(BaseCode.RESPONSE_MESSAGE_SUCCESS));
+
+    }
+
     public RequestBuilder saveRequestBuilder(String content) {
         return MockMvcRequestBuilders.post(URL)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .accept(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .content(content);
+    }
+
+
+
+
+
+    @Test
+    @DisplayName("계좌해지실패 - 유효성")
+    @Transactional
+    public void withdrawal_exception_valid() throws Exception {
+        // #1. Given
+        AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder().build();
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                withdrawalRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("resultCode").value(ExceptionResult.PARAMETER_NOT_VALID.getCode().value()))
+                .andExpect(jsonPath("resultMessage").value(ExceptionResult.PARAMETER_NOT_VALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("계좌해지실패 - 회원X")
+    @Transactional
+    public void withdrawal_exception_NoMember() throws Exception {
+        // #1. Given
+        AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder()
+                .memberNo(99999999999999L)
+                .accountNo(ACCOUNT_NO)
+                .bankCd(BANK_CD)
+                .pin(PIN)
+                .build();
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                saveRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("resultCode").value(ExceptionResult.NOT_FOUND_MEMBER.getCode().value()))
+                .andExpect(jsonPath("resultMessage").value(ExceptionResult.NOT_FOUND_MEMBER.getMessage()));
+    }
+
+    @Test
+    @DisplayName("계좌해지성공")
+    @Transactional
+    public void withdrawal() throws Exception {
+        // #1. Given
+        AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo(ACCOUNT_NO)
+                .bankCd(BANK_CD)
+                .pin(PIN)
+                .build();
+
+        AccountVO saveAccountVO = objectMapper.convertValue(request, AccountVO.class);
+        accountMapper.save(saveAccountVO);
+
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                withdrawalRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isAccepted())
+                .andExpect(jsonPath("resultCode").value(BaseCode.RESPONSE_CODE_SUCCESS))
+                .andExpect(jsonPath("resultMessage").value(BaseCode.RESPONSE_MESSAGE_SUCCESS));
+
+    }
+
+    public RequestBuilder withdrawalRequestBuilder(String content) {
+        return MockMvcRequestBuilders.delete(URL)
                 .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
                 .accept(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
                 .content(content);

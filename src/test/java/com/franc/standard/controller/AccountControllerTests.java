@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.franc.standard.code.BaseCode;
 import com.franc.standard.dto.AccountSaveDTO;
+import com.franc.standard.dto.AccountWithdrawalDTO;
 import com.franc.standard.exception.BizException;
 import com.franc.standard.exception.ControllerExceptionHandler;
 import com.franc.standard.exception.ExceptionResult;
@@ -57,7 +58,7 @@ public class AccountControllerTests {
     private MockMvc mockMvc;
 
 
-    private static final String URL = "/api/standard/account";
+    private static final String URL = "/api/standard/accounts";
     private static final Long MEMBER_NO = 1L;
     private static final String ACCOUNT_NO = "1234111122290";
     private static final String BANK_CD = "102";
@@ -146,7 +147,7 @@ public class AccountControllerTests {
 
     @Test
     @DisplayName("계좌등록성공")
-    public void save_exception_business() throws Exception {
+    public void save() throws Exception {
         // #1. Given
         AccountSaveDTO.Request request = AccountSaveDTO.Request.builder()
                 .memberNo(MEMBER_NO)
@@ -181,13 +182,97 @@ public class AccountControllerTests {
         verify(accountService, times(1)).saveAccount(any(AccountVO.class));
     }
 
-
     public RequestBuilder saveRequestBuilder(String content) {
         return MockMvcRequestBuilders.post(URL)
                 .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
                 .accept(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
                 .content(content);
     }
+
+
+
+    @Test
+    @DisplayName("계좌해지실패 - 유효성")
+    public void withdrawal_exception_valid() throws Exception {
+        // #1. Given
+        AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder().build();
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                withdrawalRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("resultCode").value(ExceptionResult.PARAMETER_NOT_VALID.getCode().value()))
+                .andExpect(jsonPath("resultMessage").value(ExceptionResult.PARAMETER_NOT_VALID.getMessage()));
+    }
+
+    @Test
+    @DisplayName("계좌해지실패 - 회원X")
+    public void withdrawal_exception_NoMember() throws Exception {
+        // #1. Given
+        AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder()
+                .memberNo(99999999999999L)
+                .accountNo(ACCOUNT_NO)
+                .bankCd(BANK_CD)
+                .pin(PIN)
+                .build();
+
+        when(memberService.findAndCheckById(anyLong()))
+                .thenThrow(new BizException(ExceptionResult.NOT_FOUND_MEMBER));
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                saveRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("resultCode").value(ExceptionResult.NOT_FOUND_MEMBER.getCode().value()))
+                .andExpect(jsonPath("resultMessage").value(ExceptionResult.NOT_FOUND_MEMBER.getMessage()));
+    }
+
+    @Test
+    @DisplayName("계좌해지성공")
+    public void withdrawal() throws Exception {
+        // #1. Given
+        AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo(ACCOUNT_NO)
+                .bankCd(BANK_CD)
+                .pin(PIN)
+                .build();
+
+        when(memberService.findAndCheckById(anyLong()))
+                .thenReturn(MemberVO.builder().build());
+
+        doNothing()
+                .when(accountService)
+                .withdrawalAccount(any(AccountVO.class));
+
+
+        // #2. When
+        ResultActions resultActions = mockMvc.perform(
+                withdrawalRequestBuilder(objectMapper.writeValueAsString(request))
+        ).andDo(print());
+
+        // #3. Then
+        resultActions.andExpect(status().isAccepted())
+                .andExpect(jsonPath("resultCode").value(BaseCode.RESPONSE_CODE_SUCCESS))
+                .andExpect(jsonPath("resultMessage").value(BaseCode.RESPONSE_MESSAGE_SUCCESS));
+
+        verify(memberService, times(1)).findAndCheckById(anyLong());
+        verify(accountService, times(1)).withdrawalAccount(any(AccountVO.class));
+    }
+
+    public RequestBuilder withdrawalRequestBuilder(String content) {
+        return MockMvcRequestBuilders.delete(URL)
+                .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .accept(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+                .content(content);
+    }
+
 
 
 }

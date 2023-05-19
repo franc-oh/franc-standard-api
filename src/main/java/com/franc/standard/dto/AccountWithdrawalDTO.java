@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-public class AccountSaveDTO {
+public class AccountWithdrawalDTO {
 
     @Getter
     @NoArgsConstructor
