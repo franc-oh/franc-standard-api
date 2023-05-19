@@ -60,8 +60,7 @@ public class AccountControllerTests {
 
     private static final String URL = "/api/standard/accounts";
     private static final Long MEMBER_NO = 1L;
-    private static final String ACCOUNT_NO = "1234111122290";
-    private static final String BANK_CD = "102";
+    private static final String ACCOUNT_NO = "1014111122290";
     private static final String PIN = "123456";
 
 
@@ -98,7 +97,6 @@ public class AccountControllerTests {
         AccountSaveDTO.Request request = AccountSaveDTO.Request.builder()
                 .memberNo(99999999999999L)
                 .accountNo(ACCOUNT_NO)
-                .bankCd(BANK_CD)
                 .pin(PIN)
                 .build();
 
@@ -114,36 +112,9 @@ public class AccountControllerTests {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("resultCode").value(ExceptionResult.NOT_FOUND_MEMBER.getCode().value()))
                 .andExpect(jsonPath("resultMessage").value(ExceptionResult.NOT_FOUND_MEMBER.getMessage()));
+
+        verify(memberService, times(1)).findAndCheckById(anyLong());
     }
-
-    @Test
-    @DisplayName("계좌등록실패 - 은행X")
-    public void save_exception_NoBank() throws Exception {
-        // #1. Given
-        AccountSaveDTO.Request request = AccountSaveDTO.Request.builder()
-                .memberNo(MEMBER_NO)
-                .accountNo(ACCOUNT_NO)
-                .bankCd("1")
-                .pin(PIN)
-                .build();
-
-        when(memberService.findAndCheckById(anyLong()))
-                .thenReturn(MemberVO.builder().build());
-
-        when(bankService.findAndCheckById(anyString()))
-                .thenThrow(new BizException(ExceptionResult.NOT_FOUND_BANK));
-
-        // #2. When
-        ResultActions resultActions = mockMvc.perform(
-                saveRequestBuilder(objectMapper.writeValueAsString(request))
-        ).andDo(print());
-
-        // #3. Then
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("resultCode").value(ExceptionResult.NOT_FOUND_BANK.getCode().value()))
-                .andExpect(jsonPath("resultMessage").value(ExceptionResult.NOT_FOUND_BANK.getMessage()));
-    }
-
 
     @Test
     @DisplayName("계좌등록성공")
@@ -152,15 +123,11 @@ public class AccountControllerTests {
         AccountSaveDTO.Request request = AccountSaveDTO.Request.builder()
                 .memberNo(MEMBER_NO)
                 .accountNo(ACCOUNT_NO)
-                .bankCd(BANK_CD)
                 .pin(PIN)
                 .build();
 
         when(memberService.findAndCheckById(anyLong()))
                 .thenReturn(MemberVO.builder().build());
-
-        when(bankService.findAndCheckById(anyString()))
-                .thenReturn(BankVO.builder().build());
 
         doNothing()
                 .when(accountService)
@@ -178,7 +145,6 @@ public class AccountControllerTests {
                 .andExpect(jsonPath("resultMessage").value(BaseCode.RESPONSE_MESSAGE_SUCCESS));
 
         verify(memberService, times(1)).findAndCheckById(anyLong());
-        verify(bankService, times(1)).findAndCheckById(anyString());
         verify(accountService, times(1)).saveAccount(any(AccountVO.class));
     }
 
@@ -215,7 +181,6 @@ public class AccountControllerTests {
         AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder()
                 .memberNo(99999999999999L)
                 .accountNo(ACCOUNT_NO)
-                .bankCd(BANK_CD)
                 .pin(PIN)
                 .build();
 
@@ -240,7 +205,6 @@ public class AccountControllerTests {
         AccountWithdrawalDTO.Request request = AccountWithdrawalDTO.Request.builder()
                 .memberNo(MEMBER_NO)
                 .accountNo(ACCOUNT_NO)
-                .bankCd(BANK_CD)
                 .pin(PIN)
                 .build();
 

@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,7 @@ public class AccountMapperTests {
 
         // #2. When
         accountMapper.save(getAccountVO());
-        AccountVO accountVO = accountMapper.findById(getParamMap());
+        AccountVO accountVO = accountMapper.findById(ACCOUNT_NO);
 
         // #3. Then
         assertThat(accountVO).isNotNull();
@@ -57,7 +58,7 @@ public class AccountMapperTests {
     public void save_changeStatus() throws Exception {
         // #1. Given
         accountMapper.save(getAccountVO());
-        AccountVO accountVO = accountMapper.findById(getParamMap());
+        AccountVO accountVO = accountMapper.findById(ACCOUNT_NO);
 
         // #2. When - 해지
         accountVO.withdrawal();
@@ -75,7 +76,7 @@ public class AccountMapperTests {
         // #2. When - 재활성
         accountVO.reUse();
         accountMapper.save(accountVO);
-        AccountVO resultVO = accountMapper.findById(getParamMap());
+        AccountVO resultVO = accountMapper.findById(ACCOUNT_NO);
 
         // #3. Then
         assertThat(resultVO).isNotNull();
@@ -86,6 +87,67 @@ public class AccountMapperTests {
         assertThat(resultVO.getCreateDate()).isNotNull();
     }
 
+    @Test
+    @DisplayName("목록조회 - 다건등록 후 필터링_옵션값 테스트")
+    @Transactional
+    public void findAll() throws Exception {
+        // #1. Given
+        String bankCd1 = "103";
+        String bankCd2 = "101";
+
+        accountMapper.save(AccountVO.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo("123441414")
+                .bankCd(bankCd1)
+                .pin("123456")
+                .build());
+        accountMapper.save(AccountVO.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo("13455646")
+                .bankCd(bankCd1)
+                .pin("333333")
+                .build());
+        accountMapper.save(AccountVO.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo("444555353")
+                .bankCd(bankCd2)
+                .pin("556677")
+                .build());
+
+        Map<String, Object> paramMap1 = new HashMap<>();
+        paramMap1.put("memberNo", MEMBER_NO);
+
+        Map<String, Object> paramMap2 = new HashMap<>();
+        paramMap2.put("memberNo", MEMBER_NO);
+        paramMap2.put("offset", 1);
+        paramMap2.put("limit", 1);
+
+        Map<String, Object> paramMap3 = new HashMap<>();
+        paramMap3.put("memberNo", MEMBER_NO);
+        paramMap3.put("bankCd", bankCd1);
+
+        // #2. When
+        List<AccountVO> myAccountsAll = accountMapper.findAll(paramMap1);
+        List<AccountVO> myAccountsRow1 = accountMapper.findAll(paramMap2);
+        List<AccountVO> myAccountsBankCd1 = accountMapper.findAll(paramMap3);
+
+        accountMapper.save(AccountVO.builder()
+                .memberNo(MEMBER_NO)
+                .accountNo("13455646")
+                .bankCd(bankCd1)
+                .status(AccountStatus.STOP.code())
+                .pin("333333")
+                .build());
+
+        paramMap1.put("status", AccountStatus.USE.code());
+        List<AccountVO> myAccountsAllStatus1 = accountMapper.findAll(paramMap1);
+
+        // #3. Then
+        assertThat(myAccountsAll.size()).isEqualTo(3);
+        assertThat(myAccountsRow1.size()).isEqualTo(1);
+        assertThat(myAccountsBankCd1.size()).isEqualTo(2);
+        assertThat(myAccountsAllStatus1.size()).isEqualTo(2);
+    }
 
 
 

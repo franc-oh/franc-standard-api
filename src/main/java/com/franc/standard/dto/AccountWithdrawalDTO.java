@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class AccountWithdrawalDTO {
 
@@ -20,10 +21,8 @@ public class AccountWithdrawalDTO {
         private Long memberNo;
 
         @NotNull
+        @Size(min = 3, max = 30)
         private String accountNo;
-
-        @NotNull
-        private String bankCd;
 
         @NotNull
         private String pin;
@@ -33,7 +32,6 @@ public class AccountWithdrawalDTO {
     @Setter
     @ToString(callSuper = true)
     @NoArgsConstructor
-    @SuperBuilder
     public static class Response extends BaseResponse{
 
     }

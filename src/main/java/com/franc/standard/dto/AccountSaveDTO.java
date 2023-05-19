@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class AccountSaveDTO {
 
@@ -16,14 +17,12 @@ public class AccountSaveDTO {
     public static class Request {
 
         @NotNull
-        @Min(1)
-        private Long memberNo;
-
-        @NotNull
+        @Size(min = 3, max = 30)
         private String accountNo;
 
         @NotNull
-        private String bankCd;
+        @Min(1)
+        private Long memberNo;
 
         @NotNull
         private String pin;
@@ -33,7 +32,6 @@ public class AccountSaveDTO {
     @Setter
     @ToString(callSuper = true)
     @NoArgsConstructor
-    @SuperBuilder
     public static class Response extends BaseResponse{
 
     }

@@ -1,6 +1,7 @@
 package com.franc.standard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.franc.standard.code.BaseCode;
 import com.franc.standard.exception.BizException;
 import com.franc.standard.exception.ExceptionResult;
 import com.franc.standard.repository.BankMapper;
@@ -22,8 +23,20 @@ public class BankService {
     private final ObjectMapper objectMapper;
 
 
-    public BankVO findAndCheckById(String bankCd) throws Exception {
+    /**
+     * 계좌번호로 은행코드 추출하여 은행정보 찾기
+     * @param accountNo
+     * @return
+     * @throws Exception
+     */
+    public BankVO findAndCheckByIdToAccountNo(String accountNo) throws Exception {
+
+        if(accountNo == null || accountNo.length() < BaseCode.BANK_CD_LENGTH)
+            throw new BizException(ExceptionResult.WRONG_ACCOUNT_NO);
+
+        String bankCd = accountNo.substring(0, BaseCode.BANK_CD_LENGTH);
         BankVO vo = bankMapper.findById(bankCd);
+
         if(vo == null)
             throw new BizException(ExceptionResult.NOT_FOUND_BANK);
 

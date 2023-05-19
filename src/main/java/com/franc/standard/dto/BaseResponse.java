@@ -8,7 +8,6 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
 public class BaseResponse {
     private String resultCode;
     private String resultMessage;

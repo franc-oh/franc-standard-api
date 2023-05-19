@@ -4,26 +4,41 @@
 
 <mapper namespace="com.franc.standard.repository.AccountMapper">
 
-    <select id="findById" parameterType="java.util.Map" resultType="AccountVO">
+    <select id="findById" parameterType="string" resultType="AccountVO">
         /** AccountMapper.findById */
-        SELECT *
-        FROM ACCOUNT
-        WHERE MEMBER_NO = #{memberNo}
-        AND ACCOUNT_NO = #{accountNo}
-        AND BANK_CD = #{bankCd}
+        SELECT A.*
+            , (SELECT BANK_NAME FROM BANK WHERE BANK_CD = A.BANK_CD) AS BANK_NAME
+        FROM ACCOUNT A
+        WHERE A.ACCOUNT_NO = #{accountNo}
+    </select>
+
+    <select id="findAll" parameterType="java.util.Map" resultType="AccountVO">
+        /** AccountMapper.findAll */
+        SELECT A.*
+              , (SELECT BANK_NAME FROM BANK WHERE BANK_CD = A.BANK_CD) AS BANK_NAME
+        FROM ACCOUNT A
+        WHERE A.MEMBER_NO = #{memberNo}
+        <if test='bankCd != null and !bankCd.equals("")'>
+            AND A.BANK_CD = #{bankCd}
+        </if>
+        <if test='status != null'>
+            AND A.STATUS = #{status}
+        </if>
+        ORDER BY A.BANK_CD, A.CREATE_DATE DESC
+        LIMIT NVL(#{offset}, 0), NVL(#{limit}, 20)
     </select>
 
     <insert id="save" parameterType="AccountVO">
         /** AccountMapper.save */
         INSERT INTO ACCOUNT(
-            MEMBER_NO,
             ACCOUNT_NO,
+            MEMBER_NO,
             BANK_CD,
             PIN,
             CREATE_DATE
         ) VALUES (
-            #{memberNo},
             #{accountNo},
+            #{memberNo},
             #{bankCd},
             #{pin},
             NOW()
