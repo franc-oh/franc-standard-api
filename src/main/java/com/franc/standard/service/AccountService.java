@@ -2,6 +2,7 @@ package com.franc.standard.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.franc.standard.code.AccountStatus;
+import com.franc.standard.code.BaseCode;
 import com.franc.standard.exception.BizException;
 import com.franc.standard.exception.ExceptionResult;
 import com.franc.standard.repository.AccountMapper;
@@ -88,7 +89,7 @@ public class AccountService {
         if(!paramVO.getPin().equals(accountVO.getPin())) {
             throw new BizException(ExceptionResult.WRONG_PIN_NUMBER);
         }
-        
+
         // #3. 해지
         accountVO.withdrawal();
         accountMapper.save(accountVO);

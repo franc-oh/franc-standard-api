@@ -49,9 +49,6 @@ public class AccountControllerTests {
     @Mock
     private MemberService memberService;
 
-    @Mock
-    private BankService bankService;
-
     @Spy
     private ObjectMapper objectMapper;
 

@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class AccountController {
     private final ObjectMapper objectMapper;
 
     @GetMapping("/{accountNo}")
-    public ResponseEntity<?> getInfo(@PathVariable("accountNo") String accountNo) throws Exception {
+    public ResponseEntity<?> getInfo(@PathVariable("accountNo") String accountNo, HttpServletRequest httpRequest) throws Exception {
         AccountGetInfoDTO.Response response = new AccountGetInfoDTO.Response();
 
         logger.info("계좌조회_Request => {}", accountNo);

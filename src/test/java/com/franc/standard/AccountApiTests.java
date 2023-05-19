@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.franc.standard.code.AccountStatus;
 import com.franc.standard.code.BaseCode;
 import com.franc.standard.controller.AccountController;
-import com.franc.standard.dto.AccountGetInfoDTO;
 import com.franc.standard.dto.AccountGetListDTO;
 import com.franc.standard.dto.AccountSaveDTO;
 import com.franc.standard.dto.AccountWithdrawalDTO;
@@ -30,6 +29,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -148,6 +151,7 @@ public class AccountApiTests {
                 .build();
 
         AccountVO saveAccountVO = objectMapper.convertValue(request, AccountVO.class);
+        saveAccountVO.setBankCd(ACCOUNT_NO.substring(0, BaseCode.BANK_CD_LENGTH));
         accountMapper.save(saveAccountVO);
 
         saveAccountVO.withdrawal();
@@ -228,6 +232,7 @@ public class AccountApiTests {
                 .build();
 
         AccountVO saveAccountVO = objectMapper.convertValue(request, AccountVO.class);
+        saveAccountVO.setBankCd(ACCOUNT_NO.substring(0, BaseCode.BANK_CD_LENGTH));
         accountMapper.save(saveAccountVO);
 
 
@@ -253,6 +258,7 @@ public class AccountApiTests {
 
     @Test
     @DisplayName("내 계좌목록 조회 - 등록 후 케이스별 테스트")
+    @Transactional
     public void getList() throws Exception {
         // #1. Given
         String bankCd1 = "103";
@@ -337,6 +343,7 @@ public class AccountApiTests {
 
     @Test
     @DisplayName("계좌조회 테스트")
+    @Transactional
     public void getInfo() throws Exception {
         // #1. Given
         String accountNo1 = "101441414";
@@ -356,7 +363,7 @@ public class AccountApiTests {
                 getInfoRequestBuilder(objectMapper.writeValueAsString(accountNo1))
         ).andDo(print());
         ResultActions resultActions2 = mockMvc.perform(
-                getListRequestBuilder(objectMapper.writeValueAsString(accountNo2))
+                getInfoRequestBuilder(objectMapper.writeValueAsString(accountNo2))
         ).andDo(print());
 
         // #3. Then
@@ -375,8 +382,14 @@ public class AccountApiTests {
                 .andExpect(jsonPath("resultMessage").value(ExceptionResult.NOT_FOUND_ACCOUNT.getMessage()));
     }
 
-    public RequestBuilder getInfoRequestBuilder(String accountNo) {
-        return MockMvcRequestBuilders.get(URL + "/" + accountNo)
+    public RequestBuilder getInfoRequestBuilder(String accountNo) throws URISyntaxException {
+        StringBuilder urlBuilder = new StringBuilder(URL)
+                .append("/")
+                .append(URLEncoder.encode(accountNo, StandardCharsets.UTF_8));
+
+        String url = urlBuilder.toString().replaceAll("%22", "");
+
+        return MockMvcRequestBuilders.get(url)
                 .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
                 .accept(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
     }

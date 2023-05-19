@@ -125,6 +125,7 @@ public class AccountServiceTests {
 
         AccountVO mockAccountVO = AccountVO.builder()
                 .memberNo(MEMBER_NO)
+                .accountNo(ACCOUNT_NO)
                 .status(AccountStatus.WITHDRAWAL.code())
                 .build();
 
