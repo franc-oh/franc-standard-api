@@ -102,6 +102,10 @@ public class AccountService {
         return accountMapper.findById(accountNo);
     }
 
+    public AccountVO getAccountAndLocking(String accountNo) throws Exception {
+        return accountMapper.findByIdAndLocking(accountNo);
+    }
+
     public List<AccountVO> getAccounts(Map<String, Object> paramMap) throws Exception {
         return accountMapper.findAll(paramMap);
     }

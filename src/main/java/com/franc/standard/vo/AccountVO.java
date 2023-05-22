@@ -22,6 +22,7 @@ public class AccountVO {
     private Character status = AccountStatus.USE.code();
     private String pin;
 
+    @Setter
     @Builder.Default
     private Integer deposit = 0;
     private LocalDateTime createDate;

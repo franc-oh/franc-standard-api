@@ -16,6 +16,7 @@ public interface AccountMapper {
      * @throws Exception
      */
     AccountVO findById(String accountNo) throws Exception;
+    AccountVO findByIdAndLocking(String accountNo) throws Exception;
 
     /**
      * 리스트조회

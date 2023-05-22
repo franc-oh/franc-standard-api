@@ -14,16 +14,21 @@ import java.time.LocalDateTime;
 @Builder
 public class TransVO {
 
+    @Setter
     private String transId;
     private Character transFg;
     private Integer transAmt;
     private LocalDateTime transDate;
+    @Setter
     private Long memberNo;
     private String accountNo;
+    @Setter
     private String bankCd;
     private String transText;
+    @Setter
     private Long toMemberNo;
     private String toAccountNo;
+    @Setter
     private String toBankCd;
     private String memo;
 
