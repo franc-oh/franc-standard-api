@@ -40,7 +40,7 @@ public class AccountController {
     private final ObjectMapper objectMapper;
 
     @GetMapping("/{accountNo}")
-    public ResponseEntity<?> getInfo(@PathVariable("accountNo") String accountNo, HttpServletRequest httpRequest) throws Exception {
+    public ResponseEntity<?> getInfo(@PathVariable("accountNo") String accountNo) throws Exception {
         AccountGetInfoDTO.Response response = new AccountGetInfoDTO.Response();
 
         logger.info("계좌조회_Request => {}", accountNo);

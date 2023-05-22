@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.franc.standard.repository.TransMapper">
+
+    <select id="issueTransId" resultType="String">
+        /** TransMapper.issueTransSeq */
+        SELECT  DATE_FORMAT(now(), '%Y%m%d%H%i%s') || LPAD(seq, 6, '0') AS TRANS_ID
+        FROM (
+            SELECT VALUES NEXT VALUE FOR STANDARD.TRANS_SEQ AS SEQ
+            FROM DUAL
+        )
+    </select>
+
+    <select id="findById" parameterType="String" resultType="TransVO">
+        /** TransMapper.findById */
+        SELECT A.*
+        FROM TRANS A
+        WHERE A.TRANS_ID = #{transId}
+    </select>
+
+    <select id="findAll" parameterType="java.util.Map" resultType="TransVO">
+        /** TransMapper.findAll */
+        SELECT A.*
+        FROM TRANS A
+        WHERE A.MEMBER_NO = #{memberNo}
+        <if test='transFg != null'>
+            AND A.TRANS_FG = #{transFg}
+        </if>
+        <if test='bankCd != null and !bankCd.equals("")'>
+            AND A.BANK_CD = #{bankCd}
+        </if>
+        ORDER BY A.TRANS_DATE DESC
+        LIMIT NVL(#{offset}, 0), NVL(#{limit}, 20)
+    </select>
+
+    <insert id="save" parameterType="TransVO">
+        /** TransMapper.save */
+        INSERT INTO TRANS
+        VALUES (
+            #{transId},
+            #{transFg},
+            #{transAmt},
+            now(),
+            #{memberNo},
+            #{accountNo},
+            #{bankCd},
+            #{transText},
+            #{toMemberNo},
+            #{toBankCd},
+            #{toAccountNo},
+            #{memo}
+        )
+    </insert>
+
+</mapper>
