@@ -35,7 +35,10 @@ public class TransVO {
 
 
     // 기타 필드
+    private String memberName;
     private String bankName;
+    private String toMemberName;
+    private String toBankName;
     private String transFgName;
     private String transDateStr;
 

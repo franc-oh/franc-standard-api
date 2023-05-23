@@ -59,7 +59,6 @@
         SELECT A.*
         FROM ACCOUNT A
         WHERE A.ACCOUNT_NO = #{accountNo}
-        FOR UPDATE
     </select>
 
 </mapper>

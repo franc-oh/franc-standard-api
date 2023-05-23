@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class AccountService {
      * @param paramVO
      * @throws Exception
      */
+    @Transactional
     public void saveAccount(AccountVO paramVO) throws Exception {
         boolean reUse = false;
         String accountNo = paramVO.getAccountNo();
@@ -73,6 +75,7 @@ public class AccountService {
      * @param paramVO
      * @throws Exception
      */
+    @Transactional
     public void withdrawalAccount(AccountVO paramVO) throws Exception {
 
         // #1. 계좌정보 가져오기

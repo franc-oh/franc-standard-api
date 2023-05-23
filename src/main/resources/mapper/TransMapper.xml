@@ -16,6 +16,10 @@
     <select id="findById" parameterType="String" resultType="TransVO">
         /** TransMapper.findById */
         SELECT A.*
+                , (SELECT BANK_NAME FROM BANK WHERE BANK_CD = A.BANK_CD) AS BANK_NAME
+                , (SELECT MEMBER_NAME FROM MEMBER WHERE MEMBER_NO = A.MEMBER_NO) AS MEMBER_NAME
+                , (SELECT BANK_NAME FROM BANK WHERE BANK_CD = A.TO_BANK_CD) AS TO_BANK_NAME
+                , (SELECT MEMBER_NAME FROM MEMBER WHERE MEMBER_NO = A.TO_MEMBER_NO) AS TO_MEMBER_NAME
         FROM TRANS A
         WHERE A.TRANS_ID = #{transId}
     </select>
@@ -23,6 +27,10 @@
     <select id="findAll" parameterType="java.util.Map" resultType="TransVO">
         /** TransMapper.findAll */
         SELECT A.*
+                , (SELECT BANK_NAME FROM BANK WHERE BANK_CD = A.BANK_CD) AS BANK_NAME
+                , (SELECT MEMBER_NAME FROM MEMBER WHERE MEMBER_NO = A.MEMBER_NO) AS MEMBER_NAME
+                , (SELECT BANK_NAME FROM BANK WHERE BANK_CD = A.TO_BANK_CD) AS TO_BANK_NAME
+                , (SELECT MEMBER_NAME FROM MEMBER WHERE MEMBER_NO = A.TO_MEMBER_NO) AS TO_MEMBER_NAME
         FROM TRANS A
         WHERE A.MEMBER_NO = #{memberNo}
         <if test='transFg != null'>

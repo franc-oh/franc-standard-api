@@ -17,6 +17,7 @@ public enum ExceptionResult {
     WRONG_ACCOUNT_NO(HttpStatus.BAD_REQUEST, "잘못된 계좌번호입니다."),
     PARAMETER_NOT_VALID(HttpStatus.BAD_REQUEST, "잘못된 요청 데이터입니다."),
     INSUFFICIENT_CACH(HttpStatus.BAD_REQUEST, "잔액이 부족합니다."),
+    NOT_FOUND_TRANS(HttpStatus.BAD_REQUEST, "거래정보가 없습니다."),
     TRANSFER_NOT_ACCOUNT(HttpStatus.BAD_REQUEST, "이체계좌 정보가 없습니다."),
     UNKNOWN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "오류가 발생했습니다. <br/>고객센터(1588-9999)로 문의주세요.");
 

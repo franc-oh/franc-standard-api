@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class TransService {
@@ -109,8 +112,16 @@ public class TransService {
                     .build());
         }
 
+    }
 
 
+    public List<TransVO> getTransList(Map<String, Object> paramMap) throws Exception {
+        return transMapper.findAll(paramMap);
+    }
+
+
+    public TransVO getTransInfo(String transId) throws Exception {
+        return transMapper.findById(transId);
     }
 
 }
