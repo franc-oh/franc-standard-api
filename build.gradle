@@ -55,7 +55,7 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
-    testImplementation "org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion"
+    testCompileOnly "org.mybatis.spring.boot:mybatis-spring-boot-starter-test:$mybatisVersion"
 
 }
 
