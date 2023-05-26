@@ -54,7 +54,7 @@ public class TransController {
         response.setResultCode(BaseCode.RESPONSE_CODE_SUCCESS);
         response.setResultMessage(BaseCode.RESPONSE_MESSAGE_SUCCESS);
 
-        logger.info("계좌등록_Response => {}", response.toString());
+        logger.info("거래_Response => {}", response.toString());
 
         return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }

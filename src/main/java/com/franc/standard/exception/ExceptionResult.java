@@ -1,5 +1,6 @@
 package com.franc.standard.exception;
 
+import com.franc.standard.code.BaseCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,10 @@ public enum ExceptionResult {
     INSUFFICIENT_CACH(HttpStatus.BAD_REQUEST, "잔액이 부족합니다."),
     NOT_FOUND_TRANS(HttpStatus.BAD_REQUEST, "거래정보가 없습니다."),
     TRANSFER_NOT_ACCOUNT(HttpStatus.BAD_REQUEST, "이체계좌 정보가 없습니다."),
-    UNKNOWN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "오류가 발생했습니다. <br/>고객센터(1588-9999)로 문의주세요.");
+    UNKNOWN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, BaseCode.RESPONSE_MESSAGE_500);
 
     private final HttpStatus code;
     private final String message;
+
+
 }
